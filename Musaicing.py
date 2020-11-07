@@ -51,7 +51,6 @@ def doMusaicing(source, sourceCorpus, target, result, mono, sr = 22050, winSize 
         Path(directory).mkdir(parents=True, exist_ok=True)
         combined.export(filename)
         source = filename
-    
     if mono == "False":
         # load source, split channels, duplicate if mono, and process data by channel
         X, sr = librosa.load(source, mono=False, sr=sr)
@@ -154,7 +153,7 @@ if __name__ == '__main__':
     group.add_argument('--sourceCorpus', type=str, help="Comma separated list of paths to audio files for source sounds to be used as a corpus")
     parser.add_argument('--target', type=str, required=True, help="Path to audio file for target sound")
     parser.add_argument('--result', type=str, required=True, help="Path to wav file to which to save the result")
-    parser.add_argument('--mono', type=str, default=False, help='If mono is False the unmodified LetItBee code will be used and a mono file will be returned')
+    parser.add_argument('--mono', type=str, default="False", help='If mono is False the unmodified LetItBee code will be used and a mono file will be returned')
     parser.add_argument('--sr', type=int, default=22050, help="Sample rate")
     parser.add_argument('--winSize', type=int, default=2048, help="Window Size in samples")
     parser.add_argument('--hopSize', type=int, default=512, help="Hop Size in samples")
