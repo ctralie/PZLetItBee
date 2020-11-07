@@ -52,14 +52,18 @@ def doMusaicing(source, sourceCorpus, target, result, mono, sr = 22050, winSize 
         combined.export(filename)
         source = filename
     
-    if mono == False:
+    if mono == "False":
         # load source, split channels, duplicate if mono, and process data by channel
         X, sr = librosa.load(source, mono=False, sr=sr)
         try:
+            print("Starting PitchShift L")
             WComplexL = getPitchShiftedSpecs(X[0], sr, winSize, hopSize, 6)
+            print("Starting PitchShift R")
             WComplexR = getPitchShiftedSpecs(X[1], sr, winSize, hopSize, 6)
         except:
+            print("Starting PitchShift L MONO")
             WComplexL = getPitchShiftedSpecs(X, sr, winSize, hopSize, 6)
+            print("Starting PitchShift R MONO")
             WComplexR = getPitchShiftedSpecs(X, sr, winSize, hopSize, 6)
         WL = np.abs(WComplexL)
         WR = np.abs(WComplexR)
@@ -79,15 +83,18 @@ def doMusaicing(source, sourceCorpus, target, result, mono, sr = 22050, winSize 
             fnw = lambda W: plotInitialW(W, hopSize)
 
         # additional processing per channel
+        print("Starting Driedger Channel L")
         HL = doNMFDriedger(VL, WL, NIters, r=r, p=p, c=c, plotfn=fn, plotfnw = fnw)
+        print("Starting Driedger Channel R")
         HR = doNMFDriedger(VR, WR, NIters, r=r, p=p, c=c, plotfn=fn, plotfnw = fnw)
         HL = np.array(HL, dtype=np.complex)
         HR = np.array(HR, dtype=np.complex)
         V2L = WComplexL.dot(HL)
         V2R = WComplexR.dot(HR)
-        print("Doing phase retrieval...")
 
+        print("Doing phase retrieval L")
         YL = griffinLimInverse(V2L, winSize, hopSize, NIters=30)
+        print("Doing phase retrieval R")
         YR = griffinLimInverse(V2R, winSize, hopSize, NIters=30)
         YL = YL/np.max(np.abs(YL))
         YR = YR/np.max(np.abs(YR))
@@ -147,7 +154,7 @@ if __name__ == '__main__':
     group.add_argument('--sourceCorpus', type=str, help="Comma separated list of paths to audio files for source sounds to be used as a corpus")
     parser.add_argument('--target', type=str, required=True, help="Path to audio file for target sound")
     parser.add_argument('--result', type=str, required=True, help="Path to wav file to which to save the result")
-    parser.add_argument('--mono', type=bool, default=False, help='If mono is False the unmodified LetItBee code will be used and a mono file will be returned')
+    parser.add_argument('--mono', type=str, default=False, help='If mono is False the unmodified LetItBee code will be used and a mono file will be returned')
     parser.add_argument('--sr', type=int, default=22050, help="Sample rate")
     parser.add_argument('--winSize', type=int, default=2048, help="Window Size in samples")
     parser.add_argument('--hopSize', type=int, default=512, help="Hop Size in samples")
