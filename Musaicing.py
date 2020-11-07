@@ -52,6 +52,7 @@ def doMusaicing(source, sourceCorpus, target, result, mono, sr = 22050, winSize 
         combined.export(filename)
         source = filename
     if mono == "False":
+        print("Starting using stereo processing")
         # load source, split channels, duplicate if mono, and process data by channel
         X, sr = librosa.load(source, mono=False, sr=sr)
         try:
@@ -126,7 +127,7 @@ def doMusaicing(source, sourceCorpus, target, result, mono, sr = 22050, winSize 
         os.remove(resultL)
         os.remove(resultR)
     else:
-        print("GOING MONO MONO")
+        print("Starting using original LetItBee Mono code")
         # if mono = True use original LetItBee mono code
         X, sr = librosa.load(source, sr=sr)
         WComplex = getPitchShiftedSpecs(X, sr, winSize, hopSize, 6)
