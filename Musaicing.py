@@ -1,6 +1,9 @@
 """
 Programmer: Chris Tralie
 Purpose: To serve as an entry point for Driedger's Musaicing Technique
+
+Modified by Alex Russo Nov 7 2020
+Purpose: Add stereo processing and ability to create and use corpus as source
 """
 import argparse
 import os
