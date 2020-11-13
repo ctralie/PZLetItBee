@@ -116,8 +116,6 @@ def doMusaicing(source, sourceCorpus, target, result, mono, sr = 22050, winSize 
         finalL.export()
         finalR.export()
         final_stereo_file = AudioSegment.from_mono_audiosegments(finalL, finalR)
-        print("*****")
-        print(final_stereo_file.channels)
         # export processed file
         directory = "./audio_files/processed/"
         result = directory + result
