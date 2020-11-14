@@ -122,8 +122,8 @@ def doMusaicing(source, sourceCorpus, target, result, mono, sr = 22050, winSize 
         Path(directory).mkdir(parents=True, exist_ok=True)
         final_stereo_file.export(result, format='wav')
         # remove left and right files
-        # os.remove(resultL)
-        # os.remove(resultR)
+        os.remove(resultL)
+        os.remove(resultR)
     else:
         print("Starting using original LetItBee Mono code")
         # if mono = True use original LetItBee mono code
