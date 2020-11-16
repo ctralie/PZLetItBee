@@ -7,6 +7,7 @@ Purpose: Add stereo processing and ability to create and use corpus as source
 """
 import argparse
 import os
+import sndhdr
 import wave
 from pathlib import Path
 
@@ -41,18 +42,33 @@ def doMusaicing(source, sourceCorpus, target, result, mono, sr = 22050, winSize 
         and a mono file will be returned but you can still use sourceCorpus feature
     """
     if sourceCorpus:
-        sourceCorpus = sourceCorpus.strip().split(',')
         combined = AudioSegment.empty()
-        for audio_file in sourceCorpus:
-            audio_file = AudioSegment.from_file(audio_file)
-            combined += audio_file
+        if os.path.isdir(sourceCorpus):
+            directory = sourceCorpus
+            for filename in os.listdir(directory):
+                filename = os.path.join(directory, filename)
+
+                # check if file is a valid audio file, if not don't include in corpus
+                if sndhdr.what(filename):
+                    audio_file = AudioSegment.from_file(filename)
+                    combined += audio_file
+                else:
+                    continue
+        else:
+            sourceCorpus = sourceCorpus.strip().split(',')
+            for audio_file in sourceCorpus:
+                audio_file = AudioSegment.from_file(audio_file)
+                combined += audio_file
+                
+        # process and export corpus
         directory = "./audio_files/corpus/"
         filename = directory + "corpus_" + result
         Path(directory).mkdir(parents=True, exist_ok=True)
         combined.export(filename)
         source = filename
+
     if mono == "False":
-        print("Starting using stereo processing")
+        print(f"Starting using stereo processing, sample rate: {sr}, winSize: {winSize}, hopSize: {hopSize}, NIters: {NIters}, r: {r}, p: {p}, c: {c}, savePlots: {savePlots}")
         # load source, split channels, duplicate if mono, and process data by channel
         X, sr = librosa.load(source, mono=False, sr=sr)
         try:
