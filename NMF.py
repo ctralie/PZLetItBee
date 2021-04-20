@@ -88,8 +88,9 @@ def doNMFDriedger(V, W, L, r = 7, p = 10, c = 3, plotfn = None, plotfnw = None):
     H = np.random.rand(K, N)
     print("H.shape = ", H.shape)
     print("Time elapsed H initializing: %.3g"%(time.time() - tic))
-    errs = np.zeros(L+1)
-    errs[0] = getKLError(V, W.dot(H))
+    if plotfn:
+        errs = np.zeros(L+1)
+        errs[0] = getKLError(V, W.dot(H))
     if plotfnw:
         plt.figure(figsize=(12, 3))
         plotfnw(W)
@@ -131,10 +132,11 @@ def doNMFDriedger(V, W, L, r = 7, p = 10, c = 3, plotfn = None, plotfnw = None):
         WDenom[WDenom == 0] = 1
         H = H*((W.T).dot(VLam)/WDenom[:, None])
         print("Elapsed Time H Update %.3g"%(time.time() - tic))
-        errs[l+1] = getKLError(V, W.dot(H))
         #Output plots every 20 iterations
-        if plotfn and ((l+1)==L or (l+1)%20 == 0):
-            plt.clf()
-            plotfn(V, W, H, l+1, errs)
-            plt.savefig("NMFDriedger_%i.png"%(l+1), bbox_inches = 'tight')
+        if plotfn:
+            errs[l+1] = getKLError(V, W.dot(H))
+            if (l+1)==L or (l+1)%20 == 0:
+                plt.clf()
+                plotfn(V, W, H, l+1, errs)
+                plt.savefig("NMFDriedger_%i.png"%(l+1), bbox_inches = 'tight')
     return H

@@ -23,7 +23,7 @@ from SpectrogramTools import *
 
 
 def doMusaicing(source, sourceCorpus, target, result, mono, sr = 22050, winSize = 2048, hopSize = 1024, \
-                    NIters = 80, r = 7, p = 10, c = 3, savePlots = True):
+                    shiftrange=0, NIters = 80, r = 7, p = 10, c = 3, savePlots = True):
     """
     :param source: Source audio filename
     :param sourceCorpus: Comma separated list of source audio filenames to be used as a corpus
@@ -31,6 +31,8 @@ def doMusaicing(source, sourceCorpus, target, result, mono, sr = 22050, winSize 
     :param result: Result wavfile path
     :param winSize: Window Size of STFT in samples
     :param hopSize: Hop size of STFT in samples
+    :param shiftrange: The number of halfsteps below and above which \
+        to shift the sound
     :param NIters: Number of iterations of Driedger's technique
     :param r: Width of the repeated activation filter
     :param p: Degree of polyphony; i.e. number of values in each column\
@@ -73,14 +75,14 @@ def doMusaicing(source, sourceCorpus, target, result, mono, sr = 22050, winSize 
         X, sr = librosa.load(source, mono=False, sr=sr)
         try:
             print("Starting PitchShift L")
-            WComplexL = getPitchShiftedSpecs(X[0], sr, winSize, hopSize, 6)
+            WComplexL = getPitchShiftedSpecs(X[0], sr, winSize, hopSize, shiftrange)
             print("Starting PitchShift R")
-            WComplexR = getPitchShiftedSpecs(X[1], sr, winSize, hopSize, 6)
+            WComplexR = getPitchShiftedSpecs(X[1], sr, winSize, hopSize, shiftrange)
         except:
             print("Starting PitchShift L MONO")
-            WComplexL = getPitchShiftedSpecs(X, sr, winSize, hopSize, 6)
+            WComplexL = getPitchShiftedSpecs(X, sr, winSize, hopSize, shiftrange)
             print("Starting PitchShift R MONO")
-            WComplexR = getPitchShiftedSpecs(X, sr, winSize, hopSize, 6)
+            WComplexR = getPitchShiftedSpecs(X, sr, winSize, hopSize, shiftrange)
         WL = np.abs(WComplexL)
         WR = np.abs(WComplexR)
 
@@ -144,7 +146,7 @@ def doMusaicing(source, sourceCorpus, target, result, mono, sr = 22050, winSize 
         print("Starting using original LetItBee Mono code")
         # if mono = True use original LetItBee mono code
         X, sr = librosa.load(source, sr=sr)
-        WComplex = getPitchShiftedSpecs(X, sr, winSize, hopSize, 6)
+        WComplex = getPitchShiftedSpecs(X, sr, winSize, hopSize, shiftrange)
         W = np.abs(WComplex)
         X, sr = librosa.load(target, sr=sr)
         V = np.abs(STFT(X, winSize, hopSize))
@@ -170,6 +172,7 @@ if __name__ == '__main__':
     parser.add_argument('--result', type=str, required=True, help="Path to wav file to which to save the result")
     parser.add_argument('--mono', type=str, default="False", help='If mono is True the unmodified LetItBee code will be used and a mono file will be returned')
     parser.add_argument('--sr', type=int, default=22050, help="Sample rate")
+    parser.add_argument('--shiftrange', type=int, default=0, help="Amount of pitch shifts to include")
     parser.add_argument('--winSize', type=int, default=2048, help="Window Size in samples")
     parser.add_argument('--hopSize', type=int, default=512, help="Hop Size in samples")
     parser.add_argument('--NIters', type=int, default=60, help="Number of iterations of NMF")
@@ -178,6 +181,6 @@ if __name__ == '__main__':
     parser.add_argument('--c', type=int, default=3, help="Half length of time-continuous activation filter")
     parser.add_argument('--saveplots', type=int, default=0, help='Save plots of iterations to disk')
     opt = parser.parse_args()
-    doMusaicing(opt.source, opt.sourceCorpus, opt.target, opt.result, opt.mono, sr=opt.sr, winSize=opt.winSize, \
-                hopSize=opt.hopSize, NIters=opt.NIters, r=opt.r, p=opt.p, c=opt.c, \
+    doMusaicing(opt.source, opt.sourceCorpus, opt.target, opt.result, opt.mono, sr=opt.sr, shiftrange=opt.shiftrange,\
+                winSize=opt.winSize, hopSize=opt.hopSize, NIters=opt.NIters, r=opt.r, p=opt.p, c=opt.c, \
                 savePlots=opt.saveplots)
